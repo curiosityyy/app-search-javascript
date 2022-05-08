@@ -327,9 +327,7 @@ Add an `index.html` file to your `dist` directory
   <head>
     <script src="elastic_app_search.umd.js"></script>
   </head>
-  <body>
-
-  </body>
+  <body></body>
 </html>
 ```
 

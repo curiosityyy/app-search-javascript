@@ -10,10 +10,12 @@ export default class ResultList {
     this.rawResults = rawResults;
     this.rawInfo = rawInfo;
 
-    const results = new Array();
+    const results = [];
+    console.log("-------");
     rawResults.forEach(data => {
       results.push(new ResultItem(data));
     });
+    console.log("-------");
 
     this.results = results;
     this.info = rawInfo;

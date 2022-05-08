@@ -39,21 +39,21 @@ function handleErrorResponse({ response, json }) {
 export default class Client {
   constructor(
     hostIdentifier,
-    searchKey,
+    username,
+    password,
     engineName,
     { endpointBase = "", cacheResponses = true, additionalHeaders } = {}
   ) {
     this.additionalHeaders = additionalHeaders;
-    this.searchKey = searchKey;
+    this.username = username;
+    this.password = password;
     this.cacheResponses = cacheResponses;
     this.engineName = engineName;
-    this.apiEndpoint = endpointBase
-      ? `${endpointBase}/api/as/v1/`
-      : `https://${hostIdentifier}.api.swiftype.com/api/as/v1/`;
-    this.searchPath = `engines/${this.engineName}/search`;
-    this.multiSearchPath = `engines/${this.engineName}/multi_search`;
-    this.querySuggestionPath = `engines/${this.engineName}/query_suggestion`;
-    this.clickPath = `engines/${this.engineName}/click`;
+    this.apiEndpoint = endpointBase ? `${endpointBase}/` : `${hostIdentifier}/`;
+    this.searchPath = `${this.engineName}/_search`;
+    this.multiSearchPath = `${this.engineName}/multi_search`;
+    this.querySuggestionPath = `${this.engineName}/query_suggestion`;
+    this.clickPath = `${this.engineName}/click`;
   }
 
   /**
@@ -67,7 +67,8 @@ export default class Client {
     const params = Object.assign({ query: query }, options);
 
     return request(
-      this.searchKey,
+      this.username,
+      this.password,
       this.apiEndpoint,
       this.querySuggestionPath,
       params,
@@ -205,9 +206,10 @@ export default class Client {
         ? this.multiSearchPath
         : this.searchPath;
     return request(
-      this.searchKey,
+      this.username,
+      this.password,
       this.apiEndpoint,
-      `${searchPath}.json`,
+      `${searchPath}`,
       params,
       this.cacheResponses,
       { additionalHeaders: this.additionalHeaders }
@@ -232,9 +234,10 @@ export default class Client {
     };
 
     return request(
-      this.searchKey,
+      this.username,
+      this.password,
       this.apiEndpoint,
-      `${this.clickPath}.json`,
+      `${this.clickPath}`,
       params,
       this.cacheResponses,
       { additionalHeaders: this.additionalHeaders }

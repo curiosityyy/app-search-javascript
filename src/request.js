@@ -3,7 +3,8 @@ import QueryCache from "./query_cache";
 const cache = new QueryCache();
 
 export function request(
-  searchKey,
+  username,
+  password,
   apiEndpoint,
   path,
   params,
@@ -19,13 +20,18 @@ export function request(
     }
   }
 
-  return _request(method, searchKey, apiEndpoint, path, params, {
+  return _request(method, username, password, apiEndpoint, path, params, {
     additionalHeaders
   }).then(response => {
+    console.log(response);
     return response
       .json()
       .then(json => {
-        const result = { response: response, json: json };
+        const result = {
+          response: response,
+          json: { results: json["hits"]["hits"] }
+        };
+        console.log(result);
         if (cacheResponses) cache.store(key, result);
         return result;
       })
@@ -37,7 +43,8 @@ export function request(
 
 function _request(
   method,
-  searchKey,
+  username,
+  password,
   apiEndpoint,
   path,
   params,
@@ -46,13 +53,24 @@ function _request(
   const jsVersion = typeof window !== "undefined" ? "browser" : process.version;
   const metaHeader = `ent=${version}-legacy,js=${jsVersion},t=${version}-legacy,ft=universal`;
   const headers = new Headers({
-    ...(searchKey && { Authorization: `Bearer ${searchKey}` }),
+    Authorization: "Basic " + btoa(username + ":" + password),
     "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "*",
+    "Access-Control-Allow-Methods": "*",
     "X-Swiftype-Client": "elastic-app-search-javascript",
     "X-Swiftype-Client-Version": version,
     "x-elastic-client-meta": metaHeader,
     ...additionalHeaders
   });
+
+  if (params["query"] == "") {
+    params["query"] = {
+      match_all: {}
+    };
+  }
+
+  console.log(params);
 
   return fetch(`${apiEndpoint}${path}`, {
     method,
